@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar Raylib",
+            "type": "shell",
+            "command": "C:/raylib/w64devkit/bin/g++.exe",
+            "args": [
+                "${file}",
+                "-o", "${fileDirname}/${fileBasenameNoExtension}.exe",
+                "-I", "C:/raylib/raylib/src",
+                "-L", "C:/raylib/raylib/src",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm",
+                "-lcomdlg32",
+                "-lole32",
+                "-static"
+            ],
+            "options": {
+                "env": {
+                    "PATH": "C:/raylib/w64devkit/bin;C:/Windows/system32"
+                }
+            },
+            "group": {
+                "kind": "build",
+                "default": true
+            },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}
