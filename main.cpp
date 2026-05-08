@@ -34,6 +34,25 @@ Color ObterCor(int cor) {
     }
 }
 
+bool is_tubo_completo (Tubo &tubo) {
+    if(tubo.liquidos.size() != 4) {
+        return false;
+    }
+
+    stack<int> copia = tubo.liquidos;
+    int cor_topo = copia.top();
+
+    while (!copia.empty()) {
+        if(copia.top() != cor_topo){
+            return false;
+        }
+        copia.pop();
+    }
+
+    return true;
+
+}
+
 int main() {
     InitWindow(900, 600, "Water Sort Puzzle");
     SetTargetFPS(60);  
@@ -45,6 +64,7 @@ int main() {
     // =========================================================
     Tubo meus_tubos[6];
     vector<int> cores = {1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4};
+    vector<int> cores_iniciais;
     vector<Movimento> historico;
 
     float largura_tubo = 60.0;
@@ -54,6 +74,7 @@ int main() {
     random_device rd; // gera uma semente baseada no hw
     mt19937 motor(rd()); // motor matemático
     shuffle(cores.begin(), cores.end(), motor); // embaralha o vetor
+    cores_iniciais = cores; //salvando o estado inicial das cores
     
     int cont_cor = 0;   
     int qtd_tubos = sizeof(meus_tubos) / sizeof(meus_tubos[0]);        
@@ -70,6 +91,7 @@ int main() {
     int id_origem = - 1;
     int id_destino = -1;   
     int cont_jogadas = 0;
+    float tempo_aviso = 0;
 
     // =========================================================
     // 2. LOOP PRINCIPAL DO JOGO (Roda 60 vezes por segundo)
@@ -87,11 +109,19 @@ int main() {
             }
         } 
         else if(tela_atual == JOGO) {
+
+            if (tempo_aviso > 0) {
+                tempo_aviso -= GetFrameTime(); // fica diminuindo o tempo
+                const char* msg_erro = "MOVIMENTO INVÁLIDO!" ;
+                int largura_erro = MeasureText(msg_erro, 30);
+                DrawText(msg_erro, (900/2) - (largura_erro/2), 120, 30, RED);
+            }
+
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ) {
                 for(int i = 0; i < qtd_tubos; i++) {
                     if(CheckCollisionPointRec(GetMousePosition(), meus_tubos[i].corpo)) {
                         if(id_origem == -1) {
-                            if(!meus_tubos[i].liquidos.empty()) {
+                            if(!meus_tubos[i].liquidos.empty() && !is_tubo_completo(meus_tubos[i])) {
                                 id_origem = i;
                                 meus_tubos[i].selecionado = true;                    
                             }
@@ -103,11 +133,19 @@ int main() {
                                 meus_tubos[id_destino].liquidos.push(cor);
                                 historico.push_back({id_origem, id_destino});
                                 cont_jogadas++;
+
+                                int tubos_completos = 0;
+                                for(int i = 0; i < qtd_tubos; i++) {
+                                    if(is_tubo_completo(meus_tubos[i])){
+                                        tubos_completos++;  
+                                    } 
+                                }
+                                if(tubos_completos == 4) {
+                                    tela_atual = FIM;
+                                }
+                                
                             } else {
-                                Rectangle r = meus_tubos[i].corpo;
-                                DrawLineEx({r.x, r.y}, {r.x, r.y + r.height}, 5, RED);
-                                DrawLineEx({r.x + r.width, r.y}, {r.x + r.width, r.y + r.height}, 5, RED);
-                                DrawLineEx({r.x - 3, r.y + r.height}, {r.x + r.width + 2, r.y + r.height}, 8, RED);
+                               tempo_aviso = 1.0f;
                             }
 
                             meus_tubos[id_origem].selecionado = false;
@@ -129,7 +167,40 @@ int main() {
                 }
                 historico.pop_back();
             }
+
+            if(IsKeyPressed(KEY_R)) {
+                for (int i = 0; i < qtd_tubos; i++) {
+                    while (!meus_tubos[i].liquidos.empty()) {
+                        meus_tubos[i].liquidos.pop();
+                    }
+                    meus_tubos[i].selecionado = false;
+                }
+
+                int cont = 0;
+                for (int i = 0; i < 4; i++) { 
+                    for (int j = 0; j < 4; j++) { //i = tubos e j = camadas
+                        meus_tubos[i].liquidos.push(cores_iniciais[cont]);
+                        cont++;
+                    }
+                }
+
+                historico.clear();
+                cont_jogadas = 0;
+                id_origem = -1;
+                id_destino = -1;
+                tempo_aviso = 0;
+            }
         } else if(tela_atual == FIM) {
+            DrawText("GAME OVER", 250, 200, 60, GREEN);
+
+            const char* txt_fim = TextFormat("Movimentos: %d", cont_jogadas);
+            int largura_fim = MeasureText(txt_fim, 30);
+            DrawText(txt_fim, (900/2) - (largura_fim/2), 300, 30, GOLD);
+            const char* txt_esc = "Pressione [ESC] para Fechar";
+            int largura_esc = MeasureText(txt_esc, 20);
+            DrawText(txt_esc, (900/2) - (largura_esc/2), 400, 20, GRAY);
+
+
             if(IsKeyPressed(KEY_ESCAPE)) {
                 CloseWindow();
             }        
