@@ -59,9 +59,6 @@ int main() {
 
     Tela tela_atual = MENU;
 
-    // =========================================================
-    // 1. INICIALIZAÇÃO (Roda apenas uma vez antes do jogo abrir)
-    // =========================================================
     Tubo meus_tubos[6];
     vector<int> cores = {1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4};
     vector<int> cores_iniciais;
@@ -93,12 +90,8 @@ int main() {
     int cont_jogadas = 0;
     float tempo_aviso = 0;
 
-    // =========================================================
-    // 2. LOOP PRINCIPAL DO JOGO (Roda 60 vezes por segundo)
-    // =========================================================
     while(!WindowShouldClose()) {
 
-        // --- ATUALIZAÇÃO DE LÓGICA E INPUTS ---
         if(tela_atual == MENU) {
             if(IsKeyPressed(KEY_ENTER)) {
                 tela_atual = JOGO;
@@ -190,23 +183,8 @@ int main() {
                 id_destino = -1;
                 tempo_aviso = 0;
             }
-        } else if(tela_atual == FIM) {
-            DrawText("GAME OVER", 250, 200, 60, GREEN);
+        } else if(tela_atual == FIM) {}
 
-            const char* txt_fim = TextFormat("Movimentos: %d", cont_jogadas);
-            int largura_fim = MeasureText(txt_fim, 30);
-            DrawText(txt_fim, (900/2) - (largura_fim/2), 300, 30, GOLD);
-            const char* txt_esc = "Pressione [ESC] para Fechar";
-            int largura_esc = MeasureText(txt_esc, 20);
-            DrawText(txt_esc, (900/2) - (largura_esc/2), 400, 20, GRAY);
-
-
-            if(IsKeyPressed(KEY_ESCAPE)) {
-                CloseWindow();
-            }        
-        }
-
-        // --- DESENHO NA TELA ---
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -241,14 +219,26 @@ int main() {
             }
 
             Vector2 m = GetMousePosition();
-            DrawCircleV(m, 5, GOLD); // Uma pequena bolinha no cursor
+            DrawCircleV(m, 5, GOLD); // uma pequena bolinha no cursor
             DrawText(TextFormat("X: %0.0f, Y: %0.0f", m.x, m.y), m.x + 10, m.y + 10, 20, GRAY);
             
             const char* txtInstrucoes = "Pressione [R] para Restart | [U] para Undo";
             int larguraInst = MeasureText(txtInstrucoes, 20);
             DrawText(txtInstrucoes, (900/2) - (larguraInst/2), 540, 20, GRAY);
         } else if(tela_atual == FIM) {
-            // CODIGO PARA O FIM DA TELA
+            DrawText("GAME OVER!", 250, 200, 60, GREEN);
+
+            const char* txt_fim = TextFormat("Movimentos: %d", cont_jogadas);
+            int largura_fim = MeasureText(txt_fim, 30);
+            DrawText(txt_fim, (900/2) - (largura_fim/2), 300, 30, GOLD);
+
+            const char* txt_esc = "Pressione [ESC] para Fechar";
+            int largura_esc = MeasureText(txt_esc, 20);
+            DrawText(txt_esc, (900/2) - (largura_esc/2), 400, 20, GRAY);
+
+            if(IsKeyPressed(KEY_ESCAPE)) {
+                CloseWindow();
+            } 
         }
 
         EndDrawing();
