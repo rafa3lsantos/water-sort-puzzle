@@ -35,7 +35,7 @@ Color ObterCor(int cor) {
 }
 
 int main() {
-    InitWindow(900, 600, "Rafaela, menina do Bobs");
+    InitWindow(900, 600, "Water Sort Puzzle");
     SetTargetFPS(60);  
 
     Tela tela_atual = MENU;
@@ -103,6 +103,11 @@ int main() {
                                 meus_tubos[id_destino].liquidos.push(cor);
                                 historico.push_back({id_origem, id_destino});
                                 cont_jogadas++;
+                            } else {
+                                Rectangle r = meus_tubos[i].corpo;
+                                DrawLineEx({r.x, r.y}, {r.x, r.y + r.height}, 5, RED);
+                                DrawLineEx({r.x + r.width, r.y}, {r.x + r.width, r.y + r.height}, 5, RED);
+                                DrawLineEx({r.x - 3, r.y + r.height}, {r.x + r.width + 2, r.y + r.height}, 8, RED);
                             }
 
                             meus_tubos[id_origem].selecionado = false;
@@ -125,7 +130,9 @@ int main() {
                 historico.pop_back();
             }
         } else if(tela_atual == FIM) {
-
+            if(IsKeyPressed(KEY_ESCAPE)) {
+                CloseWindow();
+            }        
         }
 
         // --- DESENHO NA TELA ---
